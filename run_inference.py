@@ -8,11 +8,11 @@ import time
 
 import datasets as hfds
 from loguru import logger
-from openai import AsyncOpenAI
+from sglang_extra import AsyncOpenAI
 import polars as pl
 
 from data_utils import DatasetReader, DatasetWriter, NoDatasetFilesError
-from schemas import CHAT_COMPLETION_SCHEMA, COMPLETION_SCHEMA
+from schemas import CHAT_COMPLETION_SCHEMA, COMPLETION_SCHEMA, SGLANG_CLASSIFICATION_SCHEMA
 from validate_data import validate_input_data_format
 from config import load_inference_config
 
@@ -225,11 +225,11 @@ def main(config, args: argparse.Namespace):
         base_url=config.api_base_url, api_key=api_key, max_retries=config.max_retries
     )
 
-    schema = (
-        CHAT_COMPLETION_SCHEMA
-        if config.api_type == "chat-completion"
-        else COMPLETION_SCHEMA
-    )
+    schema = {
+        "completion": COMPLETION_SCHEMA,
+        "chat-completion": CHAT_COMPLETION_SCHEMA,
+        "classification": SGLANG_CLASSIFICATION_SCHEMA,
+    }[config.api_type]
     writer = DatasetWriter(dataset_dir=config.output_path, schema=schema, shard=args.shard)
     
     # Setup signal handlers to ensure writer is closed on shutdown
@@ -274,6 +274,10 @@ def main(config, args: argparse.Namespace):
                     elif config.api_type == "completion":
                         response = await client.completions.create(
                             model=config.model, prompt=prompt_or_messages, **config.completions_kwargs
+                        )
+                    elif config.api_type == "classification":
+                        response = await client.classifications.create(
+                            model=config.model, text=prompt_or_messages
                         )
                     else:
                         raise ValueError(f"Invalid API type: {config.api_type}")

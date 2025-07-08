@@ -49,7 +49,7 @@ class BaseConfig(BaseModel):
     @classmethod
     def validate_api_type(cls, v):
         """Validate that api_type is one of the allowed values."""
-        allowed_types = ["completion", "chat-completion"]
+        allowed_types = ["completion", "chat-completion", "classification"]
         if v not in allowed_types:
             raise ValueError(f"api_type must be one of {allowed_types}")
         return v
@@ -230,7 +230,7 @@ class InferenceConfig(BaseConfig):
     """Configuration for distributed offline inference (extends BaseConfig)"""
 
     # Override API type default for inference
-    api_type: Literal["chat-completion", "completion"] = Field(
+    api_type: Literal["chat-completion", "completion", "classification"] = Field(
         default="chat-completion",
         description="API type: 'chat-completion' or 'completion'",
     )

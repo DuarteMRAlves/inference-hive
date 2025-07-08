@@ -80,6 +80,14 @@ def validate_input_data_format(ds, input_column_name: str, id_column_name: str, 
                     f"Message data: {data}"
                 ) from e
         
+        elif api_type == "classification":
+            # For classification API, data should be a string
+            if not isinstance(data, str):
+                raise ValueError(
+                    f"For api_type='classification', input data must be strings. "
+                    f"Found {type(data).__name__} in row {i}: {data}"
+                )
+
         else:
             raise ValueError(f"Invalid API type: {api_type}")
     
