@@ -130,3 +130,19 @@ CHAT_COMPLETION_SCHEMA = pa.schema([
         ])),
     ]))
 ])
+
+SGLANG_CLASSIFICATION_SCHEMA = pa.schema([
+    pa.field('id', pa.string()),
+    pa.field('response', pa.struct([
+        pa.field('embedding', pa.list_(pa.float32())),
+        pa.field('meta_info', pa.struct([
+            pa.field('id', pa.string()),
+            pa.field('finish_reason', pa.struct([
+                pa.field('type', pa.string()),
+                pa.field('length', pa.int32()),
+            ])),
+            pa.field('prompt_tokens', pa.int32()),
+            pa.field('e2e_latency', pa.float32()),
+        ])),
+    ]))
+])
